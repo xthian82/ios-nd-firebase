@@ -1,13 +1,19 @@
 # FriendlyChat
 
+
 use_frameworks!
-platform :ios, '8.0'
+platform :ios, '9.1'
 
 pod 'Firebase/Storage'
 pod 'Firebase/Core'
 pod 'Firebase/Database'
 pod 'Firebase/RemoteConfig'
 pod 'FirebaseUI'
+pod 'FirebaseUI/Auth'
+pod 'FirebaseUI/Google'
+pod 'FirebaseUI/Facebook'
+pod 'FirebaseUI/OAuth' # Used for Sign in with Apple, Twitter, etc
+pod 'FirebaseUI/Phone'
 
 target 'FriendlyChatSwift' do
 end
