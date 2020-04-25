@@ -18,14 +18,17 @@
 
 struct Constants {
 
-    // MARK: NotificationKeys
+    //MARK: Documents
+    struct Documents {
+        static let messages = "messages"
+    }
     
+    // MARK: NotificationKeys
     struct NotificationKeys {
         static let SignedIn = "onSignInCompleted"
     }
     
     // MARK: MessageFields
-
     struct MessageFields {
         static let name = "name"
         static let text = "text"

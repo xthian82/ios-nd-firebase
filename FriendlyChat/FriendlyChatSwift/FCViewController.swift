@@ -17,7 +17,7 @@
 import UIKit
 import Firebase
 import FirebaseUI
-// import FirebaseAuthUI
+
 
 // MARK: - FCViewController
 
@@ -54,9 +54,7 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
     // MARK: Life Cycle
     
     override func viewDidLoad() {
-        self.signedInStatus(isSignedIn: true)
-        
-        // TODO: Handle what users see when view loads
+        configureAuth()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -65,25 +63,49 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     // MARK: Config
-    
     func configureAuth() {
-        // TODO: configure firebase authentication
+        let provider: [FUIAuthProvider] = [FUIGoogleAuth(), FUIEmailAuth()]
+        FUIAuth.defaultAuthUI()?.providers = provider
+        
+        _authHandle = Auth.auth().addStateDidChangeListener { (auth: Auth, user: User?) in
+            // refresh table data
+            self.messages.removeAll(keepingCapacity: false)
+            self.messagesTable.reloadData()
+            
+            // check if there is a current user
+            if let activeUser = user {
+                if self.user != activeUser {
+                    self.user = activeUser
+                    self.signedInStatus(isSignedIn: true)
+                    let name = user!.email!.components(separatedBy: "@")[0]
+                    self.displayName = name
+                }
+            } else {
+                self.signedInStatus(isSignedIn: false)
+                self.loginSession()
+            }
+        }
     }
     
     func configureDatabase() {
-        // TODO: configure database to sync messages
+        ref = FirebaseDatabase.Database.database().reference()
+        _refHandle = ref.child(Constants.Documents.messages).observe(.childAdded) { (snapshot: DataSnapshot) in
+            self.messages.append(snapshot)
+            self.messagesTable.insertRows(at: [IndexPath(row: self.messages.count - 1, section: 0)], with: .automatic)
+            self.scrollToBottomMessage()
+        }
     }
     
     func configureStorage() {
-        // TODO: configure storage using your firebase storage
+        storageRef = FirebaseStorage.Storage.storage().reference()
     }
     
     deinit {
-        // TODO: set up what needs to be deinitialized when view is no longer being used
+        ref.child(Constants.Documents.messages).removeObserver(withHandle: _refHandle)
+        Auth.auth().removeStateDidChangeListener(_authHandle)
     }
     
     // MARK: Remote Config
-    
     func configureRemoteConfig() {
         // TODO: configure remote configuration settings
     }
@@ -93,7 +115,6 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     // MARK: Sign In and Out
-    
     func signedInStatus(isSignedIn: Bool) {
         signInButton.isHidden = isSignedIn
         signOutButton.isHidden = !isSignedIn
@@ -109,8 +130,9 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
             messagesTable.estimatedRowHeight = 122.0
             backgroundBlur.effect = nil
             messageTextField.delegate = self
-            
-            // TODO: Set up app to send and receive messages when signed in
+
+            configureDatabase()
+            configureStorage()
         }
     }
     
@@ -120,13 +142,23 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     // MARK: Send Message
-    
     func sendMessage(data: [String:String]) {
-        // TODO: create method that pushes message to the firebase database
+        var mdata = data
+        mdata[Constants.MessageFields.name] = displayName
+        ref.child(Constants.Documents.messages).childByAutoId().setValue(data)
     }
     
     func sendPhotoMessage(photoData: Data) {
-        // TODO: create method that pushes message w/ photo to the firebase database
+        let imagePath = "chat_photos/\(Auth.auth().currentUser!.uid)/\(Double(Date.timeIntervalSinceReferenceDate * 1000)).jpg"
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        storageRef!.child(imagePath).putData(photoData, metadata: metadata) { (metadata, error) in
+            if let error = error {
+                self.showAlert(title: "Error uploading", message: error.localizedDescription)
+                return
+            }
+            self.sendMessage(data: [Constants.MessageFields.imageUrl: self.storageRef!.child((metadata?.path)!).description])
+        }
     }
     
     // MARK: Alert
@@ -202,8 +234,36 @@ extension FCViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // dequeue cell
         let cell: UITableViewCell! = messagesTable.dequeueReusableCell(withIdentifier: "messageCell", for: indexPath)
+        
+        
+        let messageSnapShot: DataSnapshot = messages[indexPath.row]
+        let message = messageSnapShot.value as! [String: String]
+        
+        let name = message[Constants.MessageFields.name] ?? "[username]"
+        
+        if let imageUrl = message[Constants.MessageFields.imageUrl] {
+            cell!.textLabel?.text = "sent by: \(name)"
+            FirebaseStorage.Storage.storage().reference(forURL: imageUrl).getData(maxSize: INT64_MAX) { (data, error) in
+                guard error == nil else {
+                    self.showAlert(title: "Error downloading", message: error!.localizedDescription)
+                    return
+                }
+                // ready to display image
+                let messageImage = UIImage.init(data: data!, scale: 50)
+                if cell == tableView.cellForRow(at: indexPath) {
+                    DispatchQueue.main.async {
+                        cell.imageView?.image = messageImage
+                        cell.setNeedsLayout()
+                    }
+                }
+            }
+        } else {
+            let text = message[Constants.MessageFields.text] ?? "[message]"
+            cell!.textLabel?.text = "\(name): \(text)"
+            cell!.imageView?.image = placeholderImage
+        }
+        
         return cell!
-        // TODO: update cell to display message data
     }
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -211,11 +271,26 @@ extension FCViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            // TODO: if message contains an image, then display the image
+        guard !messageTextField.isFirstResponder else { return }
+        let messageSnapshot: DataSnapshot! = messages[(indexPath as NSIndexPath).row]
+        let message = messageSnapshot.value as! [String: String]
+        if let imageUrl = message[Constants.MessageFields.imageUrl] {
+            if let cachedImage = imageCache.object(forKey: imageUrl as NSString) {
+                showImageDisplay(cachedImage)
+            } else {
+                FirebaseStorage.Storage.storage().reference(forURL: imageUrl).getData(maxSize: INT64_MAX) { (data, error) in
+                    guard error == nil else {
+                        self.showAlert(title: "Error downloading", message: error!.localizedDescription)
+                        return
+                    }
+                    
+                    self.showImageDisplay(UIImage.init(data: data!)!)
+                }
+            }
+        }
     }
     
     // MARK: Show Image Display
-    
     func showImageDisplay(_ image: UIImage) {
         dismissImageRecognizer.isEnabled = true
         dismissKeyboardRecognizer.isEnabled = false
@@ -245,9 +320,9 @@ extension FCViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension FCViewController: UIImagePickerControllerDelegate {
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String:Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         // constant to hold the information about the photo
-        if let photo = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage, let photoData = photo.jpegData(compressionQuality: 0.8) {
+        if let photo = info[UIImagePickerController.InfoKey.originalImage] as? UIImage, let photoData = photo.jpegData(compressionQuality: 0.8) {
             // call function to upload photo message
             sendPhotoMessage(photoData: photoData)
         }
