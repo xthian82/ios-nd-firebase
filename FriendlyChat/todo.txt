@@ -1,0 +1,3 @@
+add notifier to selected image and progress to wait for message upload
+implement coreData to save messages
+implement delete message on table

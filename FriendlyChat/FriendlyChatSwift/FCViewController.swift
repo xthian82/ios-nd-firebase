@@ -107,11 +107,22 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
     
     // MARK: Remote Config
     func configureRemoteConfig() {
-        // TODO: configure remote configuration settings
+        let remoteConfigSettings = RemoteConfigSettings()
+        remoteConfig = RemoteConfig.remoteConfig()
+        remoteConfig.configSettings = remoteConfigSettings
     }
     
     func fetchConfig() {
-        // TODO: update to the current coniguratation
+        remoteConfig.fetch { (status, error) in
+            if status == .success {
+                self.remoteConfig.activate()
+                let friendlyMsgLength = self.remoteConfig["friendly_msg_length"]
+                if friendlyMsgLength.source != .static {
+                    self.msglength = friendlyMsgLength.numberValue!
+                    print("message length modified to \(self.msglength)")
+                }
+            }
+        }
     }
     
     // MARK: Sign In and Out
@@ -133,6 +144,8 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
 
             configureDatabase()
             configureStorage()
+            configureRemoteConfig()
+            fetchConfig()
         }
     }
     
@@ -145,7 +158,7 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
     func sendMessage(data: [String:String]) {
         var mdata = data
         mdata[Constants.MessageFields.name] = displayName
-        ref.child(Constants.Documents.messages).childByAutoId().setValue(data)
+        ref.child(Constants.Documents.messages).childByAutoId().setValue(mdata)
     }
     
     func sendPhotoMessage(photoData: Data) {
