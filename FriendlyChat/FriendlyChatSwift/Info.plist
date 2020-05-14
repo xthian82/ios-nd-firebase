@@ -29,6 +29,14 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>py.com.snowtech.friendlychat</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
 				<string>com.googleusercontent.apps.289077785989-ib6hn4mqhj9aovvveatmvhte4jbeatnn</string>
 			</array>
 		</dict>

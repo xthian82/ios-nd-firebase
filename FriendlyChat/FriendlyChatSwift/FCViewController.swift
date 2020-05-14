@@ -57,6 +57,10 @@ class FCViewController: UIViewController, UINavigationControllerDelegate {
         configureAuth()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        subscribeToKeyboardNotifications()
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         unsubscribeFromAllNotifications()
@@ -351,11 +355,19 @@ extension FCViewController: UIImagePickerControllerDelegate {
 
 extension FCViewController: UITextFieldDelegate {
     
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.text = ""
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         // set the maximum length of the message
         guard let text = textField.text else { return true }
         let newLength = text.utf16.count + string.utf16.count - range.length
         return newLength <= msglength.intValue
+    }
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        return true
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -370,14 +382,15 @@ extension FCViewController: UITextFieldDelegate {
     // MARK: Show/Hide Keyboard
     
     @objc func keyboardWillShow(_ notification: Notification) {
+        let keyHeight = self.keyboardHeight(notification)
         if !keyboardOnScreen {
-            self.view.frame.origin.y -= self.keyboardHeight(notification)
+            self.view.frame.origin.y -= keyHeight
         }
     }
     
      @objc func keyboardWillHide(_ notification: Notification) {
         if keyboardOnScreen {
-            self.view.frame.origin.y += self.keyboardHeight(notification)
+            self.view.frame.origin.y = 0
         }
     }
     
@@ -393,7 +406,7 @@ extension FCViewController: UITextFieldDelegate {
     }
     
     func keyboardHeight(_ notification: Notification) -> CGFloat {
-        return ((notification as NSNotification).userInfo![UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue.height
+        return ((notification as NSNotification).userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
     }
     
     func resignTextfield() {
@@ -409,10 +422,10 @@ extension FCViewController {
     
     func subscribeToKeyboardNotifications() {
     
-        subscribeToNotification(UIResponder.keyboardWillShowNotification, selector: #selector(keyboardWillShow))
-        subscribeToNotification(UIResponder.keyboardWillHideNotification, selector: #selector(keyboardWillHide))
-        subscribeToNotification(UIResponder.keyboardDidShowNotification, selector: #selector(keyboardDidShow))
-        subscribeToNotification(UIResponder.keyboardDidHideNotification, selector: #selector(keyboardDidHide)) 
+        subscribeToNotification(UIResponder.keyboardWillShowNotification, selector: #selector(keyboardWillShow(_:)))
+        subscribeToNotification(UIResponder.keyboardWillHideNotification, selector: #selector(keyboardWillHide(_:)))
+        subscribeToNotification(UIResponder.keyboardDidShowNotification, selector: #selector(keyboardDidShow(_:)))
+        subscribeToNotification(UIResponder.keyboardDidHideNotification, selector: #selector(keyboardDidHide(_:)))
     }
     
     func subscribeToNotification(_ name: NSNotification.Name, selector: Selector) {
