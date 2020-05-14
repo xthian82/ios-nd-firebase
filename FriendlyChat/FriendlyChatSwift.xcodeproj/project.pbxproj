@@ -11,11 +11,11 @@
 		2C595F061B34B73A00355AE7 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C595F041B34B73A00355AE7 /* Constants.swift */; };
 		2C8562851AFAB65F00F0B24B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C85627E1AFAB65F00F0B24B /* Images.xcassets */; };
 		2C8562871AFAB65F00F0B24B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C85627F1AFAB65F00F0B24B /* LaunchScreen.xib */; };
-		437FD9422451D7EA0000B0EC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 437FD9412451D7EA0000B0EC /* GoogleService-Info.plist */; };
 		5F5A537E1ADE67D500F81DF0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5A537D1ADE67D500F81DF0 /* AppDelegate.swift */; };
 		5F5A53801ADE67D500F81DF0 /* FCViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5A537F1ADE67D500F81DF0 /* FCViewController.swift */; };
 		A92476E81D6F96C300A96C4B /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A92476E61D6F96C300A96C4B /* Roboto-Regular.ttf */; };
 		A92476E91D6F96C300A96C4B /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A92476E71D6F96C300A96C4B /* RobotoMono-Regular.ttf */; };
+		C474409E246DD69600C99E5A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C474409D246DD69600C99E5A /* GoogleService-Info.plist */; };
 		DBBAAE069585D787FD06FE15 /* Pods_FriendlyChatSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9EE776B645030DD333883549 /* Pods_FriendlyChatSwift.framework */; };
 /* End PBXBuildFile section */
 
@@ -25,7 +25,6 @@
 		2C595F041B34B73A00355AE7 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		2C85627E1AFAB65F00F0B24B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		2C85627F1AFAB65F00F0B24B /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
-		437FD9412451D7EA0000B0EC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		47BDA9BA1B03D338F2B3A7F7 /* Pods-FriendlyChatSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FriendlyChatSwift.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FriendlyChatSwift/Pods-FriendlyChatSwift.debug.xcconfig"; sourceTree = "<group>"; };
 		5F5A53791ADE67D500F81DF0 /* FriendlyChatSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FriendlyChatSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F5A537D1ADE67D500F81DF0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -33,6 +32,7 @@
 		9EE776B645030DD333883549 /* Pods_FriendlyChatSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FriendlyChatSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A92476E61D6F96C300A96C4B /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
 		A92476E71D6F96C300A96C4B /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
+		C474409D246DD69600C99E5A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F3514636A3BDB21360D87272 /* Pods-FriendlyChatSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FriendlyChatSwift.release.xcconfig"; path = "Pods/Target Support Files/Pods-FriendlyChatSwift/Pods-FriendlyChatSwift.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -101,7 +101,7 @@
 		5F5A537B1ADE67D500F81DF0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				437FD9412451D7EA0000B0EC /* GoogleService-Info.plist */,
+				C474409D246DD69600C99E5A /* GoogleService-Info.plist */,
 				107960711C612531003DB6CC /* Main.storyboard */,
 				107960741C61253B003DB6CC /* Info.plist */,
 				2C85627A1AFAB65F00F0B24B /* shared */,
@@ -195,7 +195,7 @@
 				A92476E81D6F96C300A96C4B /* Roboto-Regular.ttf in Resources */,
 				2C8562851AFAB65F00F0B24B /* Images.xcassets in Resources */,
 				A92476E91D6F96C300A96C4B /* RobotoMono-Regular.ttf in Resources */,
-				437FD9422451D7EA0000B0EC /* GoogleService-Info.plist in Resources */,
+				C474409E246DD69600C99E5A /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
